@@ -23,7 +23,8 @@
         "wesbos.theme-cobalt2",
         "asciidoctor.asciidoctor-vscode",
         "qwtel.sqlite-viewer",
-        "ms-python.python"
+        "ms-python.python",
+        "GitHub.vscode-github-actions"
       ]
     }
   },
