@@ -2,3 +2,4 @@ __pycache__/
 *.sqlite3
 __pycache__
 .pytest_cache
+.DS_Store

@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 from fastui import FastUI, AnyComponent, prebuilt_html, components as c
+from fastui.events import GoToEvent
 from pydantic import BaseModel, parse_obj_as
 from typing import List
 
@@ -48,6 +49,12 @@ def ships_table() -> list[AnyComponent]:
                 c.Table(
                     data=ships,
                 ),
+                c.Div(components=[
+                    c.Link(
+                        components=[c.Button(text='Add ship')],
+                        on_click=GoToEvent(url='/ships/add')
+                    )
+                ])
             ]
         ),
     ]
