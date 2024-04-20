@@ -1,0 +1,6 @@
+fastui
+fastapi
+uvicorn
+icecream
+pytest
+httpx

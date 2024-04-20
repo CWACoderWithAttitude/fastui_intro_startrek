@@ -1,0 +1,39 @@
+= FastUI-Intro w Startrek
+
+== TL;DR
+Trying to learn FastUI. Delivered as https://code.visualstudio.com/docs/devcontainers/containers[VS Code] devcontainer to make getting started as easy possible.
+As per default the dev container starts the fastUI application on port `28000`.
+
+== Requirements
+* VS Code with dev container extension
+
+== What's inside
+* FastUI + FastAPI
+* base image is python 3.12
+* basic VSC configuration
+* helper script `./start_server.sh` to start the app in reload mode. Enables you to instantly see your changes live. You may change the host port in file `.devcontainer/.env` if you wish.
+
+
+https://code.visualstudio.com/docs/devcontainers/tutorial[Dev Containers tutorial] Shows how to install VS Code and dev container extension.
+
+
+== Plan
+1. first impression of what to expect
+
+
+The application is based on the example code published on https://github.com/pydantic/FastUI[the Github FastUI Page]
+
+== Resources
+* https://github.com/pydantic/FastUI/tree/main/src/python-fastui[FastUI src]
+* https://www.youtube.com/watch?v=eBWrnSyN2iw[Awesome tutorial...]
+* https://trans-organization-12.gitbook.io/fastui[Welcome to Fast UI]
+* https://fastui-demo.onrender.com[FastUI Demo Showcasing various UI Components]
+* https://www.youtube.com/watch?v=Jl39FZs-uz8&list=PL-2EBeDYMIbSppj2GYHnvpZ9W69qmkInS&index=4[BugBytes on FastAPI Essentials - CRUD API with a Database and SQLModel]
+* https://www.youtube.com/watch?v=Jl39FZs-uz8&list=PL-2EBeDYMIbSppj2GYHnvpZ9W69qmkInS&index=4[BugBytes on FastAPI Essentials - CRUD API with a Database and SQLModel]
+* https://github.com/pydantic/FastUI/issues/65
+* https://www.cleanpng.com/free/star-trek.html[Startrek Logos]
+* https://de.wikipedia.org/wiki/Datei:Star_Trek_Logo.png[Datei:Star Trek Logo.png]
+* https://startrek.de/universum/Raumschiffe[Startrek Ships]
+* https://de.wikipedia.org/wiki/Raumschiffe_und_Raumstationen_im_Star-Trek-Universum[Raumschiffe und Raumstationen im Star-Trek-Universum]
+* https://github.com/pydantic/FastUI/issues/97[SQLModel with FastUI]
+* https://docs.sqlalchemy.org/en/20/core/connections.html[SQL Alchemy > Working with Engines and Connections]
