@@ -8,39 +8,46 @@ from pydantic import BaseModel, parse_obj_as
 from typing import List, Annotated
 from icecream import ic
 from sqlmodel import Session, select
-from database import engine, ShipDBModel
+from database import engine, ShipDBModel, create_tables
 from contextlib import asynccontextmanager
+import json
+from models import Ship, ShipForm
 
 ships = None
+
+seed_data='ships_one.json'
+seed_data='ships_full.json'
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print(">> Lifespan")
-    ships = parse_obj_as(List[Ship], ship_json)
+    create_tables()
+    #ships = parse_obj_as(List[Ship], ship_json)
     #ic (f">> Ship-JSON: {ships}")
     with Session(engine) as session:
         stmt = select(ShipDBModel)
         res = session.exec(stmt).all()
         #ic(res)
         if res == None or len(res) < 1:
-            ic(">> Empty")
-            #s = ShipDBModel(name="USS-Enterprise", sign="NX-01", classification="n/a", captain="Jonathan Archer", speed="Warp 1", comment="n/a")   #(name="bla")
-            s = ShipDBModel(**ship_json[0])
-            session.add(s)
-            s = ShipDBModel(**ship_json[1])
-            session.add(s)
-            s = ShipDBModel(**ship_json[2])
-            session.add(s)
-            s = ShipDBModel(**ship_json[3])
-            session.add(s)
-            ic(f">> s: {s}")
-        session.commit()    
-        session.close_all()
-    
+            ic(">> DB Empty, loading default set...")
+            with open(seed_data, "r") as seed_content: 
+                ship_data = json.load(seed_content)
+
+                for s in ship_data:
+                    ssm = ShipDBModel(**s)
+                    ic(ssm)
+                    session.add(ssm)
+                    session.commit()
+
+        elif res != None:
+            ic(len(res))
+            ic(f"found "+str(len(res))+" ships")
+        
     yield
 
 app = FastAPI(lifespan=lifespan)
 
-def get_db_session():
+async def get_db_session():
     with Session(engine) as session:
         yield session
 
@@ -48,41 +55,15 @@ def getShipsFromDB():   #session : Session = Depends(get_db_session)):
     with Session(engine) as session:
         stmt = select(ShipDBModel)
         res = session.exec(stmt).all()
-        #ic(res)
-        if res is None:
-            ship = ShipDBModel(**ship_json[0])
-            session.add(ship)
-            ship = ShipDBModel(**ship_json[1])
-            session.add(ship)
-            ship = ShipDBModel(**ship_json[2])
-            session.commit()
-
+        ic(res)
     return res
 
-class ShipForm(BaseModel):
-    name: str
-    sign:str
-    classification: str
-    captain: str
-    speed: str
-    comment: str
-
-class Ship(BaseModel):
-    name: str
-    sign:str
-    classification: str
-    captain: str
-    speed: str
-    comment: str
-
-
-ship_json = [
-        {"name": "USS Enterprise", "sign": "NX-01","classification": "Constitution", "speed": "Warp 1", "captain": "Jonathan Archer", "comment": "first warp capable ship"},
+ship_json_old = [
+        {"name": "Enterprise", "sign": "NX-01","classification": "Constitution", "speed": "Warp 1", "captain": "Jonathan Archer", "comment": "first warp capable ship"},
         {"name": "USS Enterprise", "sign": "NCC-1701","classification": "Constitution", "speed": "Warp 1", "captain": "Christopher Pike", "comment": ""},
         {"name": "USS Enterprise", "sign": "NCC-1701-D","classification": "Constitution", "speed": "Warp 1", "captain": "Jean Luc Picard", "comment": ""},
         {"name": "USS Franklin", "sign": "NX-326", "classification": "Starship", "speed": "Warp 4", "captain": "balthazar edison", "comment": "lost ~2160, first warp 4 capable ship"},
     ]
-
 
 def get_session():
     with Session(engine) as session:
@@ -91,7 +72,7 @@ def get_session():
 
 @app.get("/api/", response_model=FastUI, response_model_exclude_none=True)
 def ships_table() -> list[AnyComponent]:
-    """
+    """ 
     Show a table of ships, `/api` is the endpoint the frontend will connect to
     when a user visits `/`  to fetch components to render.
     """
@@ -120,6 +101,9 @@ def ships_table() -> list[AnyComponent]:
                     columns=[
                         DisplayLookup(field='sign', on_click=GoToEvent(url='/ships/{id}/')),
                         DisplayLookup(field='name', on_click=GoToEvent(url='/ships/{id}/')),
+                        DisplayLookup(field='captain', on_click=GoToEvent(url='/ships/{id}/')),
+                        DisplayLookup(field='classification', on_click=GoToEvent(url='/ships/{id}/')),
+                        DisplayLookup(field='speed', on_click=GoToEvent(url='/ships/{id}/')),
                     ]
                 ),
                 c.Div(components=[

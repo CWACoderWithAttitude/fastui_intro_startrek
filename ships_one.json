@@ -1,0 +1,10 @@
+[
+    {
+        "name": "USS Franklin",
+        "sign": "NX-326",
+        "classification": "Starship",
+        "speed": "Warp 4",
+        "captain": "balthazar edison",
+        "comment": "lost ~2160, first warp 4 capable ship"
+    }
+]
