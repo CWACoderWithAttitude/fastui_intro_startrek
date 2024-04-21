@@ -1,6 +1,9 @@
 fastui
 fastapi
 uvicorn
-icecream
-pytest
 httpx
+sqlmodel
+pytest
+icecream
+python-multipart
+#pytest-file-watcher

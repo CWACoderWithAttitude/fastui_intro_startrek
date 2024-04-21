@@ -1,0 +1,25 @@
+#
+# get start page
+http://localhost:28000
+
+
+@host=http://localhost:28000
+###
+#curl -X POST http://localhost:28000
+
+
+POST http://localhost:28000/api/ships/add
+Content-Type: application/json
+{
+    "name": "USS Franklin",
+    "sign": "NX-326",
+    "classification": "Starship",
+    "speed": "Warp 4",
+    "captain": "balthazar edison",
+    "comment": "lost ~2160, first warp 4 capable ship"
+}
+
+
+
+
+#curl -X POST -H "Content-Type: application/json" http://localhost:28000/api/ships/add?ship=bla

@@ -24,7 +24,8 @@
         "asciidoctor.asciidoctor-vscode",
         "qwtel.sqlite-viewer",
         "ms-python.python",
-        "GitHub.vscode-github-actions"
+        "GitHub.vscode-github-actions",
+        "humao.rest-client"
       ]
     }
   },
