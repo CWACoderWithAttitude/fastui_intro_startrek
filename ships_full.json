@@ -3,13 +3,13 @@
         "name": "USS Cerritos",
         "sign": "NCC-75567",
         "classification": "California",
-        "speed": "n/a",
+        "speed": "",
         "captain": ""
     },
     {
         "name": "USS Kelce Mae",
         "sign": "NCC-",
-        "classification": "n/n"
+        "classification": ""
     },
     {
         "name": "USS Cayuga",
@@ -21,7 +21,7 @@
     {
         "name": " USS Talos",
         "captain": "Captain Marie Batel",
-        "sign": "NCC-",
+        "sign": "",
         "classification": "",
         "details": "https://memory-alpha.fandom.com/wiki/USS_Talos"
     },
@@ -41,9 +41,12 @@
         "classification": "Constitution"
     },
     {
-        "name": "USS Enterprise",
+        "name": "Enterprise",
         "sign": "NX-01",
-        "classification": "Constitution"
+        "classification": "Constitution",
+        "speed": "Warp 1",
+        "captain": "Jonathan Archer",
+        "comment": "first warp capable ship"
     },
     {
         "name": "USS Franklin",

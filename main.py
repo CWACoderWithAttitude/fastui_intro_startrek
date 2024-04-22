@@ -55,7 +55,6 @@ def getShipsFromDB():   #session : Session = Depends(get_db_session)):
     with Session(engine) as session:
         stmt = select(ShipDBModel)
         res = session.exec(stmt).all()
-        ic(res)
     return res
 
 ship_json_old = [
@@ -99,11 +98,12 @@ def ships_table() -> list[AnyComponent]:
                 c.Table(
                     data=ships,
                     columns=[
-                        DisplayLookup(field='sign', on_click=GoToEvent(url='/ships/{id}/')),
+                        DisplayLookup(field='sign'),   #, on_click=GoToEvent(url='/ships/{id}/')),
                         DisplayLookup(field='name', on_click=GoToEvent(url='/ships/{id}/')),
-                        DisplayLookup(field='captain', on_click=GoToEvent(url='/ships/{id}/')),
-                        DisplayLookup(field='classification', on_click=GoToEvent(url='/ships/{id}/')),
-                        DisplayLookup(field='speed', on_click=GoToEvent(url='/ships/{id}/')),
+                        DisplayLookup(field='captain'),# on_click=GoToEvent(url='/ships/{id}/')),
+                        DisplayLookup(field='classification'),  #, on_click=GoToEvent(url='/ships/{id}/')),
+                        DisplayLookup(field='speed'),  #on_click=GoToEvent(url='/ships/{id}/')),
+                        DisplayLookup(field='details') #on_click=GoToEvent(url='/ships/{id}/')),
                     ]
                 ),
                 c.Div(components=[
