@@ -1,7 +1,7 @@
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, HTTPException
 from fastapi.responses import HTMLResponse
 from fastui import FastUI, AnyComponent, prebuilt_html, components as c
-from fastui.events import GoToEvent
+from fastui.events import GoToEvent, BackEvent
 from fastui.forms import fastui_form
 from fastui.components.display import DisplayLookup
 from pydantic import BaseModel, parse_obj_as
@@ -15,15 +15,13 @@ from models import Ship, ShipForm
 
 ships = None
 
-seed_data='ships_one.json'
 seed_data='ships_full.json'
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print(">> Lifespan")
     create_tables()
-    #ships = parse_obj_as(List[Ship], ship_json)
-    #ic (f">> Ship-JSON: {ships}")
+
     with Session(engine) as session:
         stmt = select(ShipDBModel)
         res = session.exec(stmt).all()
@@ -51,10 +49,11 @@ async def get_db_session():
     with Session(engine) as session:
         yield session
 
-def getShipsFromDB():   #session : Session = Depends(get_db_session)):
+def getShipsFromDB():
     with Session(engine) as session:
         stmt = select(ShipDBModel)
         res = session.exec(stmt).all()
+    ic(f"ships from db: {ships}")
     return res
 
 ship_json_old = [
@@ -78,7 +77,6 @@ def ships_table() -> list[AnyComponent]:
     #ic(ships)
     #if len(ships) < 1:
     ships = getShipsFromDB()
-    ic(f"ships from db: {ships}")
     #ships = parse_obj_as(List[Ship], ship_json)
     
     
@@ -99,7 +97,7 @@ def ships_table() -> list[AnyComponent]:
                     data=ships,
                     columns=[
                         DisplayLookup(field='sign'),   #, on_click=GoToEvent(url='/ships/{id}/')),
-                        DisplayLookup(field='name', on_click=GoToEvent(url='/ships/{id}/')),
+                        DisplayLookup(field='name', on_click=GoToEvent(url='/ship/{id}/')),
                         DisplayLookup(field='captain'),# on_click=GoToEvent(url='/ships/{id}/')),
                         DisplayLookup(field='classification'),  #, on_click=GoToEvent(url='/ships/{id}/')),
                         DisplayLookup(field='speed'),  #on_click=GoToEvent(url='/ships/{id}/')),
@@ -134,6 +132,32 @@ async def create_ship(form: Annotated[ShipForm, fastui_form(ShipForm)], session 
     session.add(ship)
     session.commit()
     #return
+
+@app.get("/api/ships/{ship_id}/", response_model=FastUI, response_model_exclude_none=True)
+def ship_profile(ship_id: int, session : Session = Depends(get_session)) -> list[AnyComponent]:
+    """
+    Ship profile page, the frontend will fetch this when the user visits `/ships/{id}/`.
+    """
+    #ship = session.get(ShipDBModel, ship_id)
+    ship = ShipDBModel(**ship_json_old[0])
+    """
+    if ship is None:
+        raise HTTPException(status_code=404, detail="Ship not found")
+
+    return [
+        c.Page(
+            components=[
+                c.Heading(text=ship.name, level=2),
+                c.Link(components=[c.Text(text='Back')], on_click=BackEvent()),
+                c.Details(data=ship),
+                c.Link(
+                    components=[c.Text(text='Delete Ship')],
+                    on_click=GoToEvent(url='/delete_ship/{ship_id}'),
+                ),
+            ]
+        ),
+    ] 
+    """
 
 @app.get('/{path:path}')
 async def html_landing() -> HTMLResponse:
