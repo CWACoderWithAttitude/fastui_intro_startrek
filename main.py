@@ -12,6 +12,7 @@ from database import engine, ShipDBModel, create_tables
 from contextlib import asynccontextmanager
 import json
 from models import Ship, ShipForm
+from prometheus_fastapi_instrumentator import Instrumentator
 
 ships = None
 
@@ -44,7 +45,7 @@ async def lifespan(app: FastAPI):
     yield
 
 app = FastAPI(lifespan=lifespan)
-
+Instrumentator().instrument(app).expose(app)
 async def get_db_session():
     with Session(engine) as session:
         yield session

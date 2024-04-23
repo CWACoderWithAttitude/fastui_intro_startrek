@@ -6,4 +6,5 @@ sqlmodel
 pytest
 icecream
 python-multipart
+prometheus-fastapi-instrumentator
 #pytest-file-watcher

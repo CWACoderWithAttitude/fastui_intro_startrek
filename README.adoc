@@ -37,3 +37,4 @@ The application is based on the example code published on https://github.com/pyd
 * https://de.wikipedia.org/wiki/Raumschiffe_und_Raumstationen_im_Star-Trek-Universum[Raumschiffe und Raumstationen im Star-Trek-Universum]
 * https://github.com/pydantic/FastUI/issues/97[SQLModel with FastUI]
 * https://docs.sqlalchemy.org/en/20/core/connections.html[SQL Alchemy > Working with Engines and Connections]
+* https://www.youtube.com/watch?v=9gC3Ot0LoUQ[Mastering API Testing with FastAPI: Databases, Dependencies, and More!]

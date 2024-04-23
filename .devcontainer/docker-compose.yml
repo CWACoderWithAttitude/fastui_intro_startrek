@@ -13,8 +13,17 @@ services:
       - ${host_http_port}:8000
     command: >
       bash -c "sleep infinity"
-    networks:
-      fastui_startrek-net:
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    ports:
+      - ${host_prometheus_port}:9090
+    #volumes:
+    #  - ./prometheus_data/prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+    volumes:
+      - ./prometheus_config/prometheus.yml:/etc/prometheus/prometheus.yml
 
 networks:
   fastui_startrek-net:
