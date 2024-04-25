@@ -4,3 +4,4 @@ uvicorn
 icecream
 pytest
 httpx
+prometheus-fastapi-instrumentator

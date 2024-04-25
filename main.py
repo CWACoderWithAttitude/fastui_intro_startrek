@@ -3,8 +3,14 @@ from fastapi.responses import HTMLResponse
 from fastui import FastUI, AnyComponent, prebuilt_html, components as c
 from pydantic import BaseModel, parse_obj_as
 from typing import List
+from contextlib import asynccontextmanager
+from prometheus_fastapi_instrumentator import Instrumentator
 
-app = FastAPI()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    print(">> Lifespan")
+    #create_tables()
 
 class Ship(BaseModel):
      name: str
@@ -14,6 +20,8 @@ class Ship(BaseModel):
      speed: str
      comment: str
 
+app = FastAPI() #lifespan=lifespan)
+Instrumentator().instrument(app).expose(app)
 
 ship_json = [
         {"name": "USS Enterprise", "sign": "NX-01","classification": "Constitution", "speed": "Warp 1", "captain": "Jonathan Archer", "comment": "first warp capable ship"},
