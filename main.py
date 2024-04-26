@@ -5,7 +5,7 @@ from pydantic import BaseModel, parse_obj_as
 from typing import List
 from contextlib import asynccontextmanager
 from prometheus_fastapi_instrumentator import Instrumentator
-
+import json
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -16,9 +16,9 @@ class Ship(BaseModel):
      name: str
      sign:str
      classification: str
-     captain: str
-     speed: str
-     comment: str
+     captain: str = "n/a"
+     speed: str = "n/a"
+     comment: str = "n/a"
 
 app = FastAPI() #lifespan=lifespan)
 Instrumentator().instrument(app).expose(app)
@@ -37,8 +37,11 @@ def ships_table() -> list[AnyComponent]:
     Show a table of ships, `/api` is the endpoint the frontend will connect to
     when a user visits `/`  to fetch components to render.
     """
-    
-    ships = parse_obj_as(List[Ship], ship_json)
+    seed_data='ships_full.json'
+
+    with open(seed_data, "r") as seed_content: 
+        ship_data = json.load(seed_content)
+    ships = parse_obj_as(List[Ship], ship_data)
     
     return [
         c.Page(  # Page provides a basic container for components
