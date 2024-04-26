@@ -6,6 +6,8 @@ from typing import List
 from contextlib import asynccontextmanager
 from prometheus_fastapi_instrumentator import Instrumentator
 import json
+from database import DBShip, engine
+from sqlmodel import Session, select
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -20,6 +22,10 @@ class Ship(BaseModel):
      speed: str = "n/a"
      comment: str = "n/a"
 
+def get_session():
+    with Session(engine) as session:
+        yield session
+
 app = FastAPI() #lifespan=lifespan)
 Instrumentator().instrument(app).expose(app)
 
@@ -31,11 +37,44 @@ ship_json = [
     ]
 
 def fetch_ships():
-    seed_data='ships_full.json'
-    with open(seed_data, "r") as seed_content: 
-        ship_data = json.load(seed_content)
-    ships = parse_obj_as(List[Ship], ship_data)
+    print("1111")
+    with Session(engine) as session:
+        stmt = select(DBShip)
+        res = session.exec(stmt).all()
+    
+    print(f"2222: {res}")
+    ships = []
+    if res is None or len(res) <= 1:
+        print(f"3333: {res}")
+        
+        with Session(engine) as session:
+            dbShip = DBShip(**ship_json[0])
+            session.add(dbShip)
+            dbShip = DBShip(**ship_json[1])
+            session.add(dbShip)
+            dbShip = DBShip(**ship_json[2])
+            session.add(dbShip)
+            dbShip = DBShip(**ship_json[3])
+            session.add(dbShip)
+            session.commit()
+            stmt = select(DBShip)
+            ships = session.exec(stmt).all()
+    else:
+        ships = res
+        #print("4444")
+        #seed_data='ships_full.json'
+        #with open(seed_data, "r") as seed_content: 
+        #    ship_data = json.load(seed_content)
+        #ships = parse_obj_as(List[Ship], ship_data)
+    
     return ships
+
+def getShipsFromDB():
+    with Session(engine) as session:
+        stmt = select(DBShip)
+        res = session.exec(stmt).all()
+    return res
+
 
 @app.get("/api/", response_model=FastUI, response_model_exclude_none=True)
 def ships_table() -> list[AnyComponent]:
@@ -61,6 +100,7 @@ def ships_table() -> list[AnyComponent]:
                 ),
                 c.Table(
                     data=ships,
+                    data_model=DBShip
                 ),
             ]
         ),
