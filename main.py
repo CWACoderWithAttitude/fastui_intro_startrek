@@ -6,7 +6,7 @@ from typing import List
 from contextlib import asynccontextmanager
 from prometheus_fastapi_instrumentator import Instrumentator
 import json
-from database import DBShip, engine
+from database import DBShip, engine, create_tables
 from sqlmodel import Session, select
 
 @asynccontextmanager
@@ -14,6 +14,7 @@ async def lifespan(app: FastAPI):
     print(">> Lifespan")
     #create_tables()
 
+    
 class Ship(BaseModel):
      name: str
      sign:str
@@ -27,45 +28,37 @@ def get_session():
         yield session
 
 app = FastAPI() #lifespan=lifespan)
+#app = FastAPI(lifespan=lifespan)
 Instrumentator().instrument(app).expose(app)
 
-ship_json = [
-        {"name": "USS Enterprise", "sign": "NX-01","classification": "Constitution", "speed": "Warp 1", "captain": "Jonathan Archer", "comment": "first warp capable ship"},
-        {"name": "USS Enterprise", "sign": "NCC-1701","classification": "Constitution", "speed": "Warp 1", "captain": "Christopher Pike", "comment": ""},
-        {"name": "USS Enterprise", "sign": "NCC-1701-D","classification": "Constitution", "speed": "Warp 1", "captain": "Jean Luc Picard", "comment": ""},
-        {"name": "USS Franklin", "sign": "NX-326", "classification": "Starship", "speed": "Warp 4", "captain": "balthazar edison", "comment": "lost ~2160, first warp 4 capable ship"},
-    ]
+@app.on_event("startup")
+async def read_ships(): #session : Session = Depends(get_session)):
+    create_tables()
+
 
 def fetch_ships():
-    print("1111")
     with Session(engine) as session:
         stmt = select(DBShip)
         res = session.exec(stmt).all()
     
-    print(f"2222: {res}")
     ships = []
-    if res is None or len(res) <= 1:
+    if res is None or len(res) <= 10:
         print(f"3333: {res}")
         
         with Session(engine) as session:
-            dbShip = DBShip(**ship_json[0])
-            session.add(dbShip)
-            dbShip = DBShip(**ship_json[1])
-            session.add(dbShip)
-            dbShip = DBShip(**ship_json[2])
-            session.add(dbShip)
-            dbShip = DBShip(**ship_json[3])
-            session.add(dbShip)
-            session.commit()
-            stmt = select(DBShip)
-            ships = session.exec(stmt).all()
+            seed_data='ships_full.json'
+            with open(seed_data, "r") as seed_content: 
+                temp = seed_content.read()
+                ships_list = json.loads(temp)
+                for ship in ships_list:
+                    dbShip = DBShip(**ship)
+                    print(f"ship2: {dbShip}")
+                    session.add(dbShip)
+                    
+                session.commit()
+                ships = session.exec(stmt).all()
     else:
         ships = res
-        #print("4444")
-        #seed_data='ships_full.json'
-        #with open(seed_data, "r") as seed_content: 
-        #    ship_data = json.load(seed_content)
-        #ships = parse_obj_as(List[Ship], ship_data)
     
     return ships
 
