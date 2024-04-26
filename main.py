@@ -30,6 +30,12 @@ ship_json = [
         {"name": "USS Franklin", "sign": "NX-326", "classification": "Starship", "speed": "Warp 4", "captain": "balthazar edison", "comment": "lost ~2160, first warp 4 capable ship"},
     ]
 
+def fetch_ships():
+    seed_data='ships_full.json'
+    with open(seed_data, "r") as seed_content: 
+        ship_data = json.load(seed_content)
+    ships = parse_obj_as(List[Ship], ship_data)
+    return ships
 
 @app.get("/api/", response_model=FastUI, response_model_exclude_none=True)
 def ships_table() -> list[AnyComponent]:
@@ -37,11 +43,8 @@ def ships_table() -> list[AnyComponent]:
     Show a table of ships, `/api` is the endpoint the frontend will connect to
     when a user visits `/`  to fetch components to render.
     """
-    seed_data='ships_full.json'
 
-    with open(seed_data, "r") as seed_content: 
-        ship_data = json.load(seed_content)
-    ships = parse_obj_as(List[Ship], ship_data)
+    ships = fetch_ships()
     
     return [
         c.Page(  # Page provides a basic container for components
