@@ -21,3 +21,9 @@ def test_get_index(client: TestClient):
     assert response.status_code == 200, response.text
     assert response.text.startswith('<!doctype html>\n')
 
+def test_api_root(client: TestClient):
+    r = client.get('/api/')
+    assert r.status_code == 200
+    data = r.json()
+    assert len(data) == 1
+    assert "one" == data[0]

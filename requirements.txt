@@ -1,7 +1,9 @@
 fastui
 fastapi
+sqlmodel
 uvicorn
 icecream
 pytest
 httpx
 prometheus-fastapi-instrumentator
+python-multipart

@@ -1,14 +1,15 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.responses import HTMLResponse
 from fastui import FastUI, AnyComponent, prebuilt_html, components as c
-from pydantic import BaseModel, parse_obj_as
-from typing import List
+from pydantic import BaseModel
+from typing import List, Annotated
 from contextlib import asynccontextmanager
 from prometheus_fastapi_instrumentator import Instrumentator
 import json
 from database import DBShip, engine, create_tables
 from sqlmodel import Session, select
-
+from fastui.forms import SelectSearchResponse, fastui_form
+from fastui.events import GoToEvent
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print(">> Lifespan")
@@ -91,6 +92,12 @@ def ships_table() -> list[AnyComponent]:
                     referrer_policy='no-referrer',
                     class_name='border rounded',
                 ),
+                c.Div(components=[
+                    c.Link(
+                        components=[c.Button(text='Add ship')],
+                        on_click=GoToEvent(url='/ships/add')
+                    )
+                ]),
                 c.Table(
                     data=ships,
                     data_model=DBShip
@@ -99,6 +106,33 @@ def ships_table() -> list[AnyComponent]:
         ),
     ]
 
+@app.post("/api/ships/add")
+async def create_ship(form: Annotated[Ship, fastui_form(Ship)], session : Session = Depends(get_session)): # -> FormResponse:
+    print(form)
+    ship = DBShip(**form.model_dump())
+    session.add(ship)
+    session.commit()
+    session.close()
+
+    # id = str(uuid.uuid5(uuid.NAMESPACE_DNS, 'name'))
+    # return
+    # ship = StartrekShipModel(**form.model_dump()) # unpack... (pydantic function)
+    # session.add(ship)
+    # session.commit()
+    #ships.append(ship)
+    #return SelectSearchResponse(event=GoToEvent('/'))
+
+
+
+@app.get('/api/ships/add', response_model=FastUI, response_model_exclude_none=True)
+def add_ship():
+    return [
+        c.Page(components=[
+            c.Heading(text='Add Ship', level=2),
+            c.Paragraph (text='Add new Ship to th list'),
+            c.ModelForm(model=Ship, submit_url='/api/ships/add')
+        ])
+    ]
 @app.get('/{path:path}')
 async def html_landing() -> HTMLResponse:
     """Simple HTML page which serves the React app, comes last as it matches all paths."""
