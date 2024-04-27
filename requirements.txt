@@ -4,6 +4,8 @@ sqlmodel
 uvicorn
 icecream
 pytest
+#pytest-file-watcher
+pytest-watch
 httpx
 prometheus-fastapi-instrumentator
 python-multipart

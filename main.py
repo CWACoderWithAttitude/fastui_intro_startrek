@@ -122,6 +122,19 @@ async def create_ship(form: Annotated[Ship, fastui_form(Ship)], session : Sessio
     
     #return SelectSearchResponse(event=GoToEvent('/'))
 
+@app.get("/api/delete/{ship_id}/", response_model=FastUI, response_model_exclude_none=True)
+def ship_delete(ship_id: str) -> list[AnyComponent]:  #, session : Session = Depends(get_session)) -> list[AnyComponent]:
+    print(f"delete ship_id: {ship_id}")
+    raise HTTPException(status_code=404, detail="Ship with id ${ship_id} not found")
+    p= c.Page(
+        components=[
+                c.Heading(text="ship.name", level=2),
+                c.Link(components=[c.Text(text='Back')], on_click=BackEvent()),
+            ]
+    )
+    print(f"delete answer page: ${p}")
+    return p
+
 @app.get("/api/ships/{ship_id}/", response_model=FastUI, response_model_exclude_none=True)
 def ship_profile(ship_id: str, session : Session = Depends(get_session)) -> list[AnyComponent]:
     """
@@ -139,7 +152,7 @@ def ship_profile(ship_id: str, session : Session = Depends(get_session)) -> list
                 c.Details(data=ship),
                 c.Link(
                     components=[c.Text(text='Delete Ship')],
-                    on_click=GoToEvent(url='/delete_ship/{ship_id}'),
+                    on_click=GoToEvent(url='/delete/{ship_id}'),
                 ),
             ]
         ),

@@ -26,4 +26,12 @@ def test_api_root(client: TestClient):
     assert r.status_code == 200
     data = r.json()
     assert len(data) == 1
-    assert "one" == data[0]
+    answer_type = data[0]['type']
+    assert answer_type == 'Page'
+    components = data[0]['components']
+    assert len(components) == 4
+    assert components[0]['type'] == 'Heading'
+    assert components[1]['type'] == 'Image'
+    assert components[2]['type'] == 'Div'
+    assert components[3]['type'] == 'Table'
+    
