@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, HTTPException
 from fastapi.responses import HTMLResponse
 from fastui import FastUI, AnyComponent, prebuilt_html, components as c
 from pydantic import BaseModel
@@ -9,7 +9,9 @@ import json
 from database import DBShip, engine, create_tables
 from sqlmodel import Session, select
 from fastui.forms import SelectSearchResponse, fastui_form
-from fastui.events import GoToEvent
+from fastui.events import GoToEvent, BackEvent
+from fastui.components.display import DisplayMode, DisplayLookup
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print(">> Lifespan")
@@ -100,7 +102,11 @@ def ships_table() -> list[AnyComponent]:
                 ]),
                 c.Table(
                     data=ships,
-                    data_model=DBShip
+                    data_model=DBShip,
+                    columns=[
+                        # the first two cols are rendered as a link to their profile
+                        DisplayLookup(field='name', on_click=GoToEvent(url='/ships/{id}/')),
+                    ]
                 ),
             ]
         ),
@@ -113,16 +119,31 @@ async def create_ship(form: Annotated[Ship, fastui_form(Ship)], session : Sessio
     session.add(ship)
     session.commit()
     session.close()
-
-    # id = str(uuid.uuid5(uuid.NAMESPACE_DNS, 'name'))
-    # return
-    # ship = StartrekShipModel(**form.model_dump()) # unpack... (pydantic function)
-    # session.add(ship)
-    # session.commit()
-    #ships.append(ship)
+    
     #return SelectSearchResponse(event=GoToEvent('/'))
 
+@app.get("/api/ships/{ship_id}/", response_model=FastUI, response_model_exclude_none=True)
+def ship_profile(ship_id: str, session : Session = Depends(get_session)) -> list[AnyComponent]:
+    """
+    Ship profile page, the frontend will fetch this when the user visits `/ships/{id}/`.
+    """
+    ship = session.get(DBShip, ship_id)
+    if ship is None:
+        raise HTTPException(status_code=404, detail="Ship not found")
 
+    return [
+        c.Page(
+            components=[
+                c.Heading(text=ship.name, level=2),
+                c.Link(components=[c.Text(text='Back')], on_click=BackEvent()),
+                c.Details(data=ship),
+                c.Link(
+                    components=[c.Text(text='Delete Ship')],
+                    on_click=GoToEvent(url='/delete_ship/{ship_id}'),
+                ),
+            ]
+        ),
+    ]
 
 @app.get('/api/ships/add', response_model=FastUI, response_model_exclude_none=True)
 def add_ship():
@@ -133,6 +154,8 @@ def add_ship():
             c.ModelForm(model=Ship, submit_url='/api/ships/add')
         ])
     ]
+
+
 @app.get('/{path:path}')
 async def html_landing() -> HTMLResponse:
     """Simple HTML page which serves the React app, comes last as it matches all paths."""
