@@ -23,7 +23,7 @@ def test_get_index(client: TestClient):
 
 def test_api_root(client: TestClient):
     r = client.get('/api/')
-    assert r.status_code == 200
+    assert r.status_code == 200, r.text
     data = r.json()
     assert len(data) == 1
     answer_type = data[0]['type']
@@ -34,4 +34,22 @@ def test_api_root(client: TestClient):
     assert components[1]['type'] == 'Image'
     assert components[2]['type'] == 'Div'
     assert components[3]['type'] == 'Table'
+    table = components[3]
+    assert table != ""
+    assert 3 == len(table['columns'])
+    assert table['columns'][0]['field'] == "id"
+    assert table['columns'][1]['field'] == "name"
+    assert table['columns'][1]['onClick']['url'].startswith('/ships/{id}')
+    assert table['columns'][2]['field'] == "classification"
+    assert table['columns'][2]['onClick']['url'].startswith('/ships/{id}')
     
+    
+    
+def test_api_ship_details(client: TestClient):
+    r = client.get('/api/ships/1')
+    assert r.status_code == 200, r.text
+    #data = r.json()
+    
+    # assert len(data) == 1
+    # answer_type = data[0]['type']
+    # assert answer_type == 'Pagea'

@@ -105,7 +105,9 @@ def ships_table() -> list[AnyComponent]:
                     data_model=DBShip,
                     columns=[
                         # the first two cols are rendered as a link to their profile
+                        DisplayLookup(field='id', on_click=GoToEvent(url='/ships/{id}/')),
                         DisplayLookup(field='name', on_click=GoToEvent(url='/ships/{id}/')),
+                        DisplayLookup(field='classification', on_click=GoToEvent(url='/ships/{id}/')),
                     ]
                 ),
             ]
@@ -136,7 +138,7 @@ def ship_delete(ship_id: str) -> list[AnyComponent]:  #, session : Session = Dep
     return p
 
 @app.get("/api/ships/{ship_id}/", response_model=FastUI, response_model_exclude_none=True)
-def ship_profile(ship_id: str, session : Session = Depends(get_session)) -> list[AnyComponent]:
+def ship_details(ship_id: str, session : Session = Depends(get_session)) -> list[AnyComponent]:
     """
     Ship profile page, the frontend will fetch this when the user visits `/ships/{id}/`.
     """
